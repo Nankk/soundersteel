@@ -1,0 +1,27 @@
+{
+    "name": "soundersteel",
+    "version": "0.0.1",
+    "main": "main.js",
+    "private": true,
+    "devDependencies": {
+        "shadow-cljs": "^2.8.60"
+    },
+    "dependencies": {
+        "bootstrap": "^4.3.1",
+        "chart.js": "^2.9.3",
+        "create-react-class": "15.6.2",
+        "electron": "^9.0.5",
+        "encoding-japanese": "^1.0.30",
+        "highlight.js": "^9.15.10",
+        "jquery": "^3.4.1",
+        "popper.js": "^1.16.0",
+        "react": "^16.13.1",
+        "react-dom": "^16.12.0",
+        "react-flip-move": "3.0.1",
+        "react-highlight.js": "1.0.7",
+        "react-split-pane": "^0.1.89",
+        "uuid": "^3.3.3",
+        "uws": "^100.0.1",
+        "wavesurfer.js": "^4.0.1"
+    }
+}
