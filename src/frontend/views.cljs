@@ -1,9 +1,10 @@
 (ns frontend.views
-  (:require ["react-split-pane" :as rsp]
-            [frontend.components.file-list :as file-list]
-            [frontend.components.scene-list :as scene-list]
-            [frontend.components.track-list :as track-list]
-            ))
+  (:require
+   ["react-split-pane" :as rsp]
+   [frontend.components.file-list :as file-list]
+   [frontend.components.scene-list :as scene-list]
+   [frontend.components.track-list :as track-list]
+   ))
 
 (def SplitPane (.-default rsp))
 
