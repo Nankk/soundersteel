@@ -9,20 +9,19 @@
     {:master-volume 1
      :files         [{:id   f-id
                       :path "/home/user/Music/hogefuga.mp3"}]
-     :scenes        [{:id     s-id
-                      :name   "Piyo"
-                      :tracks [t-id]}
-                     {:id     s-id2
-                      :name   "Poyo"
-                      :tracks []}]
-     :tracks        [{:id      t-id
-                      :file-id f-id
-                      :name    "hoge-fugue"
-                      :loop    {:id         l-id
-                                :loop       {:begin 10
-                                             :end   60}
-                                :volume     1
-                                :wavesurfer nil}}]
+     :scenes        [{:id   s-id
+                      :name "Piyo"}
+                     {:id   s-id2
+                      :name "Poyo"}]
+     :tracks        [{:id       t-id
+                      :file-id  f-id
+                      :scene-id s-id
+                      :name     "hoge-fugue"
+                      :loop     {:id         l-id
+                                 :loop       {:begin 10
+                                              :end   60}
+                                 :volume     1
+                                 :wavesurfer nil}}]
      :cur-file-id   nil
      :cur-scene-id  nil
      :cur-track-id  nil}))
