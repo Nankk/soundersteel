@@ -6,7 +6,10 @@
             [frontend.const :as const]))
 
 (def handlers
-  {::set-cur-file-id  [:cur-file-id]
+  {
+   ::initialize-db    (fn [_ _] (if config/debug? db/debug-db db/default-db))
+   ::add-ipc-channel  (fn [db [_ k v]] (update-in db [:ipc-channels] assoc k v))
+   ::set-cur-file-id  [:cur-file-id]
    ::set-cur-scene-id [:cur-scene-id]
    ::set-cur-track-id [:cur-track-id]
    ::add-file         (fn [db [_ f]]
@@ -33,8 +36,9 @@
                           (-> db
                               (assoc ,, :scenes nscenes)
                               (assoc ,, :tracks ntracks))))
-   ::initialize-db    (fn [_ _] (if config/debug? db/debug-db db/default-db))
-   ::add-ipc-channel  (fn [db [_ k v]] (update-in db [:ipc-channels] assoc k v))})
+   ::set-wavesurfer   (fn [db [_ t ws]]
+                        (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                          (assoc-in db [:tracks tidx :wavesurfer] ws)))})
 
 (doseq [[ev-key item] handlers]
   (if (coll? item)
