@@ -34,6 +34,8 @@
 (defn css []
   (g/css
    [:html {:background-color "#090909!important"}]
+   [:body {:font-size "80%!important"}]
+   [:i.fa.fa-trash {:color (colors :gray)}]
    [:.container {:height  "100%"
                  :margin  "0px!important"
                  :padding "10px!important"}]

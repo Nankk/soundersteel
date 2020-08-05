@@ -22,8 +22,9 @@
       (for [f fs]
         ^{:key f}
         [:div.card {:style {:background-color (if (= (f :id) cur-id)
-                                                (style/colors :blue)
-                                                (style/colors :gray-darker))}}
+                                                (style/colors :gray-dark)
+                                                (style/colors :gray-darkest))}
+                    :draggable true}
          [:div.card-body {:on-click #(rf/dispatch-sync [::events/set-cur-file-id (f :id)])}
           [:div.d-flex.flex-row.justify-content-between
            [:div (get (re-find #"(/|\\)([^/\\]+)$" (f :path)) 2)]
@@ -37,7 +38,7 @@
       [:div (get f :path)])]])
 
 (defn main []
-  [:div#file-list.container
+  [:div#file-list.container {:style {:background-color (style/colors :gray-darker)}}
    [:div.grid
     [:div.upper
      [file-list]]

@@ -10,7 +10,7 @@
 
 (defn main-panel []
   [:> SplitPane {:split "vertical" :primary "second" :minSize 50 :defaultSize "35%"}
-   [:> SplitPane {:split "horizontal" :minSize 50 :defaultSize "35%"}
+   [:> SplitPane {:split "horizontal" :minSize 50 :defaultSize "22%"}
     [scene-list/main]
     [track-list/main]]
    [file-list/main]])
