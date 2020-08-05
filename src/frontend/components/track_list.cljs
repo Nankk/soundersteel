@@ -1,6 +1,8 @@
 (ns frontend.components.track-list
   (:require ["wavesurfer.js" :as WaveSurfer]
             ["wavesurfer.js/src/plugin/regions/index.js" :as ws-region-raw]
+            [cljs.core.async :refer [go <!]]
+            [frontend.electron-ipc :refer [ipc]]
             [frontend.events :as events]
             [frontend.subs :as subs]
             [re-frame.core :as rf]
@@ -46,14 +48,18 @@
                           :responsive true
                           :plugins    [(.create ws-region (clj->js {}))]}))]
         (rf/dispatch-sync [::events/set-wavesurfer t ws])
-        (let [f @(rf/subscribe [::subs/file<-id (t :file-id)])
-              p "audio/PlasticAdventure.mp3"]
-          (.load ws p)))
+        (go
+          (let [f          @(rf/subscribe [::subs/file<-id (t :file-id)])
+                p          (f :path)
+                buffer     (<! (ipc :read-file p))
+                blob-class (.-Blob js/window)
+                blob       (blob-class. (clj->js [(js/Uint8Array. buffer)]))]
+            (.loadBlob ws blob))))
       )
     :reagent-render (fn []
                       [:div.waveform-container
-                       [:div {:id (str (t :id))
-                              :style {:width  "100%" :height "100%"}}]])}))
+                       [:div {:id    (str (t :id))
+                              :style {:width "100%" :height "100%"}}]])}))
 
 (defn main []
   [:div#track-list.container
