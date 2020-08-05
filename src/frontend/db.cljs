@@ -4,24 +4,21 @@
   (let [f-id  (random-uuid)
         s-id  (random-uuid)
         s-id2 (random-uuid)
-        t-id  (random-uuid)
-        l-id  (random-uuid)]
+        t-id  (random-uuid)]
     {:master-volume 1
      :files         [{:id   f-id
-                      :path "/home/user/Music/hogefuga.mp3"}]
+                      :path "audio/PlasticAdventure.mp3"}]
      :scenes        [{:id   s-id
                       :name "Piyo"}
                      {:id   s-id2
                       :name "Poyo"}]
-     :tracks        [{:id       t-id
-                      :file-id  f-id
-                      :scene-id s-id
-                      :name     "hoge-fugue"
-                      :loop     {:id         l-id
-                                 :loop       {:begin 10
-                                              :end   60}
-                                 :volume     1
-                                 :wavesurfer nil}}]
+     :tracks        [{:id         t-id
+                      :file-id    f-id
+                      :scene-id   s-id
+                      :name       "hoge-fugue"
+                      :wavesurfer nil
+                      :loop       {:begin 10
+                                   :end   60}}]
      :cur-file-id   nil
      :cur-scene-id  nil
      :cur-track-id  nil}))
