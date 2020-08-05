@@ -14,3 +14,9 @@
       (recur (vec (concat (subvec dropped 0 (first rmidcs))
                           (subvec dropped (inc (first rmidcs)))))
              (rest rmidcs)))))
+
+(defn first-idx [pred coll]
+  (first (keep-indexed #(when (pred %2) %1) coll)))
+
+(defn first-item [pred coll]
+  (nth coll (first (keep-indexed #(when (pred %2) %1) coll))))
