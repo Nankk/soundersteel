@@ -20,3 +20,6 @@
 
 (defn first-item [pred coll]
   (nth coll (first (keep-indexed #(when (pred %2) %1) coll))))
+
+(defn js<-id [id]
+  (.getElementById js/document id))

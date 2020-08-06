@@ -7,6 +7,7 @@
   (g/css
    [:#track-list
     [:.track {:height "85px"}]
+    [:.card {:background-color (style/colors :gray-dark)}]
     [:wave {:height "100%!important"
             :border-radius "5px"
             :background-color (style/colors :gray-darkest)}]
@@ -42,7 +43,7 @@
                                 }]]
 
     ;; A-B looper
-    [:.looper-edge {:background-color (style/colors :gray-dark)
+    [:.looper-edge {:background-color (style/colors :primary)
                     :padding-left     "8px"
                     :width            "80%"
                     :border-radius    "5px"

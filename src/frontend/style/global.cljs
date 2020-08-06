@@ -16,7 +16,7 @@
    :cyan          "#57c7d4"
    :white         "#ffffff"
    :gray          "#6c757d"
-   :gray-dark     "#243033"
+   :gray-dark     "#242735"
    :gray-darker   "#12151e"
    :gray-darkest  "#0d0d0d"
    :gray-light    "#aab2bd"

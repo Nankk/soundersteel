@@ -22,12 +22,12 @@
       (for [f fs]
         ^{:key f}
         [:div.card {:style {:background-color (if (= (f :id) cur-id)
-                                                (style/colors :gray-dark)
+                                                (style/colors :gray)
                                                 (style/colors :gray-darkest))}
                     :draggable true}
          [:div.card-body {:on-click #(rf/dispatch-sync [::events/set-cur-file-id (f :id)])}
           [:div.d-flex.flex-row.justify-content-between
-           [:div (get (re-find #"(/|\\)([^/\\]+)$" (f :path)) 2)]
+           [:div.overflow-hidden.text-nowrap (get (re-find #"(/|\\)([^/\\]+)$" (f :path)) 2)]
            [:i.fa.fa-trash {:on-click #(rf/dispatch-sync [::events/remove-file f])}]]
           ]]))]])
 
@@ -35,7 +35,7 @@
   [:div.card.h-100
    [:div.card-body {:style {:background-color (style/colors :gray-dark)}}
     (let [f @(rf/subscribe [::subs/cur-file])]
-      [:div (get f :path)])]])
+      [:div.text-break (get f :path)])]])
 
 (defn main []
   [:div#file-list.container {:style {:background-color (style/colors :gray-darker)}}
