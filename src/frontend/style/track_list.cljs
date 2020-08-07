@@ -6,13 +6,13 @@
 (defn css []
   (g/css
    [:#track-list
+    [:.master-volume {:width "200px"}]
     [:.track {:height "85px"}]
-    [:.card {:background-color (style/colors :gray-dark)}]
-    [:wave {:height "100%!important"
-            :border-radius "5px"
+    [:wave {:height           "100%!important"
+            :border-radius    "5px"
             :background-color (style/colors :gray-darkest)}]
-    [:.waveform-container {:height "100%"
-                           :width  "100%"
+    [:.waveform-container {:height  "100%"
+                           :width   "100%"
                            :padding "1px 5px"}]
 
     ;; Control grid
@@ -43,7 +43,7 @@
                                 }]]
 
     ;; A-B looper
-    [:.looper-edge {:background-color (style/colors :primary)
+    [:.looper-edge {:background-color (style/colors :gray-darkest)
                     :padding-left     "8px"
                     :width            "80%"
                     :border-radius    "5px"

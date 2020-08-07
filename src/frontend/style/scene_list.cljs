@@ -1,7 +1,8 @@
 (ns frontend.style.scene-list
   (:require
    [garden.core :as g]
-   ))
+
+   [frontend.style.global :as style]))
 
 (defn css []
   (g/css
@@ -14,5 +15,5 @@
                                      "title"
                                      "list")}]
     [:.title {:grid-area "title"}]
-    [:.list {:grid-area "list"}]]
-   ))
+    [:.list {:grid-area "list"}]
+    ]))

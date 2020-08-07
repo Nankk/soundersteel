@@ -4,44 +4,34 @@
    ))
 
 (def colors
-  {:blue          "#5E50F9"
-   :indigo        "#6610f2"
-   :purple        "#6a008a"
-   :pink          "#E91E63"
-   :red           "#f96868"
-   :orange        "#f2a654"
-   :yellow        "#f6e84e"
-   :green         "#46c35f"
-   :teal          "#58d8a3"
+  {:blue          "#0090E7"
+   :purple        "#8F5FE8"
+   :red           "#FC424A"
+   :yellow        "#FFAB00"
+   :green         "#00D25B"
    :cyan          "#57c7d4"
    :white         "#ffffff"
-   :gray          "#6c757d"
-   :gray-dark     "#242735"
-   :gray-darker   "#12151e"
-   :gray-darkest  "#0d0d0d"
+   :gray          "#191C24"
+   :gray-dark     "#12151E"
+   :gray-darker   "#0F1015"
+   :gray-darkest  "#0F0F0F"
    :gray-light    "#aab2bd"
    :gray-lighter  "#e8eff4"
    :gray-lightest "#e6e9ed"
-   :black         "#000000"
-   :primary       "#0090e7"
-   :secondary     "#e4eaec"
-   :success       "#00d25b"
-   :info          "#8f5fe8"
-   :warning       "#ffab00"
-   :danger        "#fc424a"
-   :light         "#ffffff"})
+   :black         "#000000"})
 
 (defn css []
   (g/css
-   [:html {:background-color "#090909!important"}]
+   [:html {:background-color (str (colors :black) "!important")}]
    [:body {:font-size "80%!important"}]
    [:i.fa.fa-trash {:color (colors :gray)}]
    [:.container {:height  "100%"
                  :margin  "0px!important"
                  :padding "10px!important"}]
    [:.scroll {:overflow "auto"}]
-   [:.card-header {:padding "5px 8px"}]
-   [:.card-body {:padding "5px 8px!important"}]
+   [:.card-header {:padding "8px 8px"}]
+   [:.card {:background-color (colors :gray)}]
+   [:.card-body {:padding "8px 8px!important"}]
    [:.code {:font-family "Monospace"}]
    [:.rounded {:border-radius "5px"}]
    [:&::-webkit-scrollbar {:width "10px"}
@@ -57,4 +47,9 @@
                    :border           "none"
                    :border-bottom    (str "1px solid " "#444444")}]
    [:.num {:text-align "right"
-           :padding    "0px 7px"}]))
+           :padding    "0px 7px"}]
+   [:.list-item {:background-color (colors :gray)
+                 :border-color     (colors :gray-darkest)
+                 :margin-bottom    "-1px"}]
+   [:.selected {:background-color (colors :gray-darker)}]
+   ))
