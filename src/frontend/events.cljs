@@ -37,6 +37,26 @@
                                (assoc ,, :scenes nscenes)
                                (assoc ,, :tracks ntracks))))
    ::add-track         (fn [db [_ t]] (update db :tracks conj t))
+   ::push-down-track   (fn [db [_ t]]
+                         (let [ts  (vec (filter #(= (% :scene-id) (db :cur-scene-id)) (db :tracks)))
+                               idx (util/first-idx #(= (t :id) (% :id)) ts)]
+                           (if (not (= idx (dec (count ts))))
+                             (let [ntracks (vec (concat (subvec ts 0 idx)
+                                                        (list (ts (inc idx)))
+                                                        (list (ts idx))
+                                                        (when (> (count ts) 2) (subvec ts (+ idx 2)))))]
+                               (assoc db :tracks ntracks))
+                             db)))
+   ::pull-up-track     (fn [db [_ t]]
+                         (let [ts  (vec (filter #(= (% :scene-id) (db :cur-scene-id)) (db :tracks)))
+                               idx (util/first-idx #(= (t :id) (% :id)) ts)]
+                           (if (not (= idx 0))
+                             (let [ntracks (vec (concat (subvec ts 0 (dec idx))
+                                                        (list (ts idx))
+                                                        (list (ts (dec idx)))
+                                                        (when (> (count ts) 2) (subvec ts (inc idx)))))]
+                               (assoc db :tracks ntracks))
+                             db)))
    ::update-playing?   (fn [db [_ t]]
                          (let [idx (util/first-idx #(= (% :id) (t :id)) (db :tracks))
                                ws  (t :wavesurfer)]

@@ -102,7 +102,7 @@
   (println "remove-region " t " " a-b)
   (let [ws     (t :wavesurfer)
         rs     (js->clj (.-list (.-regions ws)))
-        _ (util/log (.-list (.-regions ws)))
+        _      (util/log (.-list (.-regions ws)))
         _      (println rs)
         target (get rs (name a-b))
         _      (println target)]
@@ -184,8 +184,14 @@
   [:div.d-flex.flex-row.justify-content-between
    [master-volume]
    [:div.d-flex.flex-row
-    [:i.fas.fa-chevron-circle-down.mr-2]
-    [:i.fas.fa-chevron-circle-up]]])
+    [:i.fas.fa-chevron-circle-down.mr-2
+     {:on-click (fn []
+                  (let [cur-t @(rf/subscribe [::subs/cur-track])]
+                    (when cur-t (rf/dispatch-sync [::events/push-down-track cur-t]))))}]
+    [:i.fas.fa-chevron-circle-up
+     {:on-click (fn []
+                  (let [cur-t @(rf/subscribe [::subs/cur-track])]
+                    (when cur-t (rf/dispatch-sync [::events/pull-up-track cur-t]))))}]]])
 
 (defn- create-wavesurfer-instance
   "Create wavesurfer instance & containing DOM element and register them to db."
