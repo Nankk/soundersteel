@@ -12,7 +12,8 @@
             [goog.string :as gstring]
             goog.string.format
             [re-frame.core :as rf]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [clojure.string :as str]))
 
 (def ws-region (.-default ws-region-raw))
 
@@ -52,7 +53,7 @@
       [:i.fas.fa-chevron-circle-left.fa-lg
        {:on-click (fn []
                     (let [ws           (t :wavesurfer)
-                          break-points (reverse [(t :a) (+ (or (t :b) 0) 0.01) (.getDuration ws)])
+                          break-points (reverse [(t :a) (t :b) (.getDuration ws)])
                           cur-time     (- (.getCurrentTime ws) const/op-tolerance-sec)
                           ntime        (first (filter #(> cur-time %) break-points))]
                       (.setCurrentTime ws ntime)))}]
@@ -70,8 +71,8 @@
       [:i.fas.fa-chevron-circle-right.fa-lg
        {:on-click (fn []
                     (let [ws           (t :wavesurfer)
-                          break-points [(t :a) (+ (or (t :b) 0) 0.01) (.getDuration ws)]
-                          cur-time     (.getCurrentTime ws)
+                          break-points [(t :a) (t :b) (.getDuration ws)]
+                          cur-time     (+ (.getCurrentTime ws) 0.01)
                           ntime        (first (filter #(< cur-time %) break-points))]
                       (.setCurrentTime ws ntime)))}]]
      [volume-slider t]
@@ -82,14 +83,20 @@
   (let [ws (t :wavesurfer)
         r  (.addRegion ws (clj->js {:id     (name a-b)
                                     :start  time
-                                    :end    (+ time 0.01)
+                                    :end    (inc time)
                                     :resize false
                                     :loop   false
                                     :drag   true
                                     :color  (style/colors a-b)}))]
     (rf/dispatch-sync [::events/set-a-b t a-b time])
+    (.on r "update-end" (fn []
+                          (let [updated-time (.-start r)]
+                            (set! (.-value (util/js<-id (str (t :id) "-" (name a-b))))
+                                  (gstring/format "%.2f" updated-time))
+                            (rf/dispatch-sync [::events/set-a-b t a-b updated-time]))))
     (when (= a-b :b)
-      (.on r "out" #(when (t :loop?) (.setCurrentTime ws (or (t :a) 0)))))))
+      ;; TODO Somehow in cbf the t's values are fixed
+      (.on r "in" (fn [] (when (t :loop?) (.setCurrentTime ws (or (t :a) 0))))))))
 
 (defn- remove-region [t a-b]
   (println "remove-region " t " " a-b)
@@ -103,8 +110,33 @@
     (when target
       (.remove target))))
 
+(defn- a-b-controller [t a-b]
+  (reagent/create-class
+   {:component-did-mount (fn []
+                           (set! (.-value (util/js<-id (str (t :id) "-" (name a-b))))
+                                 (if-let [val (t a-b)] (gstring/format "%.2f" val) 0)))
+    :reagent-render
+    (fn []
+      [:div.d-flex.flex-row.align-items-center.w-100
+       [:div.edge-toggle
+        {:class    (when (t a-b) "toggle-on")
+         :style    (when (t a-b) {:background-color (style/colors a-b)
+                                  :border-color     (style/colors a-b)})
+         :on-click (if (t a-b)
+                     #(remove-region t a-b)
+                     #(add-region t a-b (.getCurrentTime (t :wavesurfer))))}
+        (str/upper-case (name a-b))]
+       [:input.input-ab.see-through.num
+        {:id (str (t :id) "-" (name a-b))
+         :on-blur (fn []
+                    (let [time (.-value (util/js<-id (str (t :id) "-" (name a-b))))]
+                      (remove-region t a-b)
+                      (add-region t a-b time)
+                      (rf/dispatch-sync [::events/set-a-b t a-b time])))}]])}))
+
 (defn- looper [t]
   [:div.looper
+
    ;; Enable loop
    [:div.d-flex.flex-row.align-items-center.w-100
     [:div.loop-toggle.mb-1 {:style    (when (t :loop?) {:background-color (style/colors :accent2)
@@ -112,31 +144,9 @@
                             :on-click #(rf/dispatch-sync [::events/toggle-loop t])}
      (if (t :loop?) "Loop: on" "Loop: off")]]
 
-   ;; A edge
-   [:div.d-flex.flex-row.align-items-center.w-100
-    [:div.edge-toggle {:class    (when (t :a) "toggle-on")
-                       :style    (when (t :a) {:background-color (style/colors :a)
-                                               :border-color     (style/colors :a)})
-                       :on-click (if (t :a)
-                                   #(remove-region t :a)
-                                   #(add-region t :a (.getCurrentTime (t :wavesurfer))))}
-     "A"]
-    [:input.input-ab.see-through.num {:value (if-let [val (t :a)]
-                                               (gstring/format "%.2f" val)
-                                               0)}]]
-
-   ;; B edge
-   [:div.d-flex.flex-row.align-items-center.w-100
-    [:div.edge-toggle {:class    (when (t :b) "toggle-on")
-                       :style    (when (t :b) {:background-color (style/colors :b)
-                                               :border-color     (style/colors :b)})
-                       :on-click (if (t :b)
-                                   #(remove-region t :b)
-                                   #(add-region t :b (.getCurrentTime (t :wavesurfer))))}
-     "B"]
-    [:input.input-ab.see-through.num {:value (if-let [val (t :b)]
-                                               (gstring/format "%.2f" val)
-                                               0)}]]])
+   ;; A-B loop controller
+   [a-b-controller t :a]
+   [a-b-controller t :b]])
 
 (defn- wavesurfer-container [t]
   (reagent/create-class
@@ -198,7 +208,8 @@
                  :wavesurfer  ws
                  :dom-element el
                  :playing?    false
-                 :loop        true
+                 :volume      1.0
+                 :loop?       true
                  :a           nil
                  :b           nil}]
     (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
