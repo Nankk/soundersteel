@@ -20,9 +20,7 @@
                      (let [idx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
                        (get-in db [:tracks idx :playing?])))
    ::master-volume [:master-volume]
-   ::volume        (fn [db [_ t]]
-                     (let [idx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
-                       (get-in db [:tracks idx :volume])))})
+   })
 
 (doseq [[sub-key item] subscriptions]
   (if (coll? item)

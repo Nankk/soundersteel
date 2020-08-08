@@ -46,8 +46,18 @@
                                        false))))
    ::set-master-volume [:master-volume]
    ::set-volume        (fn [db [_ t vol]]
-                         (let [idx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
-                           (assoc-in db [:tracks idx :volume] vol)))})
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (assoc-in db [:tracks tidx :volume] vol)))
+   ::toggle-loop       (fn [db [_ t]]
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (update-in db [:tracks tidx :loop?] #(not %))))
+   ::set-a-b           (fn [db [_ t a-b time]]
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (assoc-in db [:tracks tidx a-b] time)))
+   ::remove-a-b        (fn [db [_ t a-b]]
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (assoc-in db [:tracks tidx a-b] nil)))
+   })
 
 (doseq [[ev-key item] handlers]
   (if (coll? item)

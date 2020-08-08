@@ -19,7 +19,8 @@
   (first (keep-indexed #(when (pred %2) %1) coll)))
 
 (defn first-item [pred coll]
-  (nth coll (first (keep-indexed #(when (pred %2) %1) coll))))
+  (let [idx (first (keep-indexed #(when (pred %2) %1) coll))]
+    (when idx (nth coll idx))))
 
 (defn js<-id [id]
   (.getElementById js/document id))

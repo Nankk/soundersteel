@@ -17,7 +17,6 @@
 
     ;; Control grid
     [:.grid-control {:height                "100%"
-                     :width                 "200px"
                      :display               "grid"
                      :grid-template-rows    "2fr 3fr"
                      :grid-template-columns "1fr 1fr"
@@ -25,8 +24,12 @@
                                              "display    display"
                                              "controller looper")}]
     [:.display {:grid-area "display"}]
-    [:.controller {:grid-area "controller "}]
-    [:.looper {:grid-area "looper "}]
+    [:.controller {:grid-area      "controller"
+                   :display        "flex"
+                   :flex-direction "vertical"
+                   :align-items    "center"}]
+    [:.looper {:grid-area "looper"}]
+    [:.track-control {:width "240px"}]
 
     ;; Volume range slider
     [:.volume-range {:-webkit-appearance "none"
@@ -48,4 +51,30 @@
                     :width            "80%"
                     :border-radius    "5px"
                     :margin-bottom    "4px"}]
+    [:.edge-toggle {:border-radius    "2px"
+                    :cursor           "default"
+                    :text-align       "center"
+                    :width            "16px"
+                    :height           "16px"
+                    :font-size        "7pt"
+                    :color            (style/colors :gray-lighter)
+                    :border           "solid 1px"
+                    :border-color     (style/colors :gray-lighter)
+                    :background-color (style/colors :gray-light)
+                    }]
+    [:.toggle-on {:color (style/colors :white)}]
+    [:.loop-toggle {:border-radius    "2px"
+                    :text-align       "center"
+                    :font-size        "7pt"
+                    :width            "70px"
+                    :height           "16px"
+                    :border           "solid 1px"
+                    :border-color     (style/colors :gray-lighter)
+                    :background-color (style/colors :gray-light)}]
+    [:.input-ab {:color (style/colors :gray-lighter)
+                 :width "42px"
+                 :type  "text"}]
+    [:wave
+     [:wave {:opacity 0.5}]]
+    [:.wavesurfer-region {:width "1px!important"}]
     ]))
