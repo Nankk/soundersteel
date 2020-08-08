@@ -24,6 +24,27 @@
        [:h5 (nth (re-find #"/([^/]+)$" (f :path)) 1)])]
     [:i.fa.fa-trash]]])
 
+(defn- volume-slider [t]
+  (reagent/create-class
+   {:component-did-mount (fn []
+                           (let [el (util/js<-id (str (t :id) "-volume"))]
+                             (set! (.-value el) (t :volume))))
+    :reagent-render
+    (fn []
+      [:input.volume-range {:id          (str (t :id) "-volume")
+                            :type        "range"
+                            :min         0
+                            :max         1
+                            :step        0.01
+                            :on-mouse-up (fn []
+                                           (let [tvol (.-value (util/js<-id (str (t :id) "-volume")))]
+                                             (rf/dispatch-sync [::events/set-volume t tvol])))
+                            :on-input    (fn []
+                                           (let [mvol @(rf/subscribe [::subs/master-volume])
+                                                 tvol (.-value (util/js<-id (str (t :id) "-volume")))
+                                                 nvol (* mvol tvol)]
+                                             (.setVolume (t :wavesurfer) nvol)))}])}))
+
 (defn- controller [t]
   (let [ws (t :wavesurfer)]
     [:div.contoller
@@ -53,19 +74,8 @@
                           cur-time     (.getCurrentTime ws)
                           ntime        (first (filter #(< cur-time %) break-points))]
                       (.setCurrentTime ws ntime)))}]]
-     [:input.volume-range {:id          (str (t :id) "-volume")
-                           :type        "range"
-                           :min         0
-                           :max         1
-                           :step        0.01
-                           :on-mouse-up (fn []
-                                          (let [tvol (.-value (util/js<-id (str (t :id) "-volume")))]
-                                            (rf/dispatch-sync [::events/set-volume t tvol])))
-                           :on-input    (fn []
-                                          (let [mvol @(rf/subscribe [::subs/master-volume])
-                                                tvol (.-value (util/js<-id (str (t :id) "-volume")))
-                                                nvol (* mvol tvol)]
-                                            (.setVolume ws nvol)))}]]))
+     [volume-slider t]
+     ]))
 
 (defn- add-region [t a-b time]
   (println "add-region " (t :id) " " a-b " " time)
@@ -136,8 +146,7 @@
                              (let [container (util/js<-id (t :id))
                                    ws        (t :wavesurfer)]
                                (.appendChild container (t :dom-element))
-                               (.drawBuffer ws)
-                               )))
+                               (.drawBuffer ws))))
     :reagent-render (fn []
                       [:div.waveform-container
                        [:div {:id    (str (t :id))
@@ -158,7 +167,6 @@
                                                 (doseq [t ts]
                                                   (let [tvol (.-value (util/js<-id (str (t :id) "-volume")))
                                                         nvol (* mvol tvol)
-                                                        _    (println "mvol: " mvol "  tvol: " tvol)
                                                         ws   (t :wavesurfer)]
                                                     (.setVolume ws nvol)))))}]])
 
