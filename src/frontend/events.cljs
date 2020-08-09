@@ -37,6 +37,10 @@
                                (assoc ,, :scenes nscenes)
                                (assoc ,, :tracks ntracks))))
    ::add-track         (fn [db [_ t]] (update db :tracks conj t))
+   ::remove-track      (fn [db [_ t]]
+                         (let [trmidcs (keep-indexed #(when (= (%2 :id) (t :id)) %1) (db :tracks))
+                               ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
+                           (assoc db :tracks ntracks)))
    ::update-track      (fn [db [_ t]]
                          (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
                            (assoc-in db [:tracks tidx] t)))
