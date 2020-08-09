@@ -10,6 +10,7 @@
    ::scenes        [:scenes]
    ::tracks        [:tracks]
    ::file<-id      (fn [db [_ fid]] (util/first-item #(= (% :id) fid) (db :files)))
+   ::track<-id     (fn [db [_ tid]] (util/first-item #(= (% :id) tid) (db :tracks)))
    ::cur-file-id   [:cur-file-id]
    ::cur-scene-id  [:cur-scene-id]
    ::cur-track-id  [:cur-track-id]

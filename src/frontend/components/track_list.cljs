@@ -95,8 +95,10 @@
                                   (gstring/format "%.2f" updated-time))
                             (rf/dispatch-sync [::events/set-a-b t a-b updated-time]))))
     (when (= a-b :b)
-      ;; TODO Somehow in cbf the t's values are fixed
-      (.on r "in" (fn [] (when (t :loop?) (.setCurrentTime ws (or (t :a) 0))))))))
+      (.on r "in" (fn []
+                    ;; t itself should not be referred in this closure; t is fixed map
+                    (let [track @(rf/subscribe [::subs/track<-id (t :id)])]
+                      (when (get track :loop?) (.setCurrentTime ws (or (get track :a) 0)))))))))
 
 (defn- remove-region [t a-b]
   (println "remove-region " t " " a-b)
