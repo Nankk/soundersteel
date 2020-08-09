@@ -6,7 +6,7 @@
             [frontend.const :as const]))
 
 (def handlers
-  {
+  {::set-db            (fn [_ [_ new-db]] new-db)
    ::initialize-db     (fn [_ _] (if config/debug? db/debug-db db/default-db))
    ::add-ipc-channel   (fn [db [_ k v]] (update-in db [:ipc-channels] assoc k v))
    ::set-cur-file-id   [:cur-file-id]
@@ -37,6 +37,9 @@
                                (assoc ,, :scenes nscenes)
                                (assoc ,, :tracks ntracks))))
    ::add-track         (fn [db [_ t]] (update db :tracks conj t))
+   ::update-track      (fn [db [_ t]]
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (assoc-in db [:tracks tidx] t)))
    ::push-down-track   (fn [db [_ t]]
                          (let [ts  (vec (filter #(= (% :scene-id) (db :cur-scene-id)) (db :tracks)))
                                idx (util/first-idx #(= (t :id) (% :id)) ts)]

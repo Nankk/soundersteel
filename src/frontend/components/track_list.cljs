@@ -75,8 +75,7 @@
                           cur-time     (+ (.getCurrentTime ws) 0.01)
                           ntime        (first (filter #(< cur-time %) break-points))]
                       (.setCurrentTime ws ntime)))}]]
-     [volume-slider t]
-     ]))
+     [volume-slider t]]))
 
 (defn- add-region [t a-b time]
   (println "add-region " (t :id) " " a-b " " time)
@@ -150,6 +149,30 @@
    [a-b-controller t :a]
    [a-b-controller t :b]])
 
+(defn- create-wavesurfer-element []
+  (let [el (.createElement js/document "div")]
+    (.setAttribute el "class" "h-100")
+    el))
+
+(defn- create-wavesurfer-instance [el]
+  (.create WaveSurfer (clj->js
+                       {:container     el
+                        :responsive    true
+                        :backend       "MediaElement"
+                        :hideScrollbar false
+                        :plugins       [(.create ws-region (clj->js {}))]})))
+
+(defn- create-wavesurfer [t]
+  (println "create-wavesurfer")
+  (let [el  (create-wavesurfer-element)
+        ws  (create-wavesurfer-instance el)
+        nt  (assoc t :wavesurfer ws :dom-element el)
+        fid (nt :file-id)
+        f   @(rf/subscribe [::subs/file<-id fid])]
+    (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
+    (rf/dispatch-sync [::events/update-track nt])
+    (.load ws (f :path))))
+
 (defn- wavesurfer-container [t]
   (reagent/create-class
    {:component-did-mount (fn [_]
@@ -160,9 +183,10 @@
                                (.appendChild container (t :dom-element))
                                (.drawBuffer ws))))
     :reagent-render (fn []
-                      [:div.waveform-container
-                       [:div {:id    (str (t :id))
-                              :style {:width "100%" :height "100%"}}]])}))
+                      (when (t :wavesurfer)
+                        [:div.waveform-container
+                         [:div {:id    (str (t :id))
+                                :style {:width "100%" :height "100%"}}]]))}))
 
 (defn- master-volume []
   [:div.d-flex.flex-row.align-items-center.master-volume.mb-2
@@ -195,36 +219,33 @@
                   (let [cur-t @(rf/subscribe [::subs/cur-track])]
                     (when cur-t (rf/dispatch-sync [::events/pull-up-track cur-t]))))}]]])
 
-(defn- create-wavesurfer-instance
-  "Create wavesurfer instance & containing DOM element and register them to db."
-  [f]
+(defn- create-track [f]
   (let [tid     (str (random-uuid))
         fid     (f :id)
         cur-sid @(rf/subscribe [::subs/cur-scene-id])
-        el      (.createElement js/document "div")
-        ws      (.create WaveSurfer
-                         (clj->js
-                          {:container     el
-                           :responsive    true
-                           :backend       "MediaElement"
-                           :hideScrollbar false
-                           :plugins       [(.create ws-region (clj->js {}))]}))
         nt      {:id          tid
                  :file-id     fid
                  :scene-id    cur-sid
                  :name        (nth (re-find #"/([^/]+)$" (f :path)) 1)
-                 :wavesurfer  ws
-                 :dom-element el
+                 :wavesurfer  nil
+                 :dom-element nil
                  :playing?    false
                  :volume      1.0
                  :loop?       true
                  :a           nil
                  :b           nil}]
-    (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
-    (.setAttribute el "class" "h-100")
-    (println "File added: " (f :path))
-    (.load ws (f :path))
     (rf/dispatch-sync [::events/add-track nt])))
+
+(defn- track-panel [t]
+  (if (nil? (t :wavesurfer))
+    (do (create-wavesurfer t)
+        [:div])
+    [:div.track.d-flex.flex-row
+     [:div.track-control.grid-control
+      [display t]
+      [controller t]
+      [looper t]]
+     [wavesurfer-container t]]))
 
 (defn main []
   [:div#track-list.container
@@ -234,7 +255,7 @@
                           :on-drop      (fn [e]
                                           (let [data (.getData (.-dataTransfer e) "text/plain")
                                                 f    (reader/read-string data)]
-                                            (create-wavesurfer-instance f)))}
+                                            (create-track f)))}
      [header]
      [:div.list.scroll
       (let [cur-sid @(rf/subscribe [::subs/cur-scene-id])
@@ -245,9 +266,4 @@
           ^{:key t}
           [:div.card {:class (if (= (t :id) cur-id) "selected" "list-item")}
            [:div.card-body {:on-click #(rf/dispatch-sync [::events/set-cur-track-id (t :id)])}
-            [:div.track.d-flex.flex-row
-             [:div.track-control.grid-control
-              [display t]
-              [controller t]
-              [looper t]]
-             [wavesurfer-container t]]]]))]]]])
+            [track-panel t]]]))]]]])

@@ -5,7 +5,8 @@
    [frontend.util :as util]))
 
 (def subscriptions
-  {::ipc-channels  [:ipc-channels]
+  {::db            (fn [db [_ _]] db)
+   ::ipc-channels  [:ipc-channels]
    ::files         [:files]
    ::scenes        [:scenes]
    ::tracks        [:tracks]

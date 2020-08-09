@@ -8,7 +8,14 @@
 
 (def main-window (atom nil))
 (def menu-template [{:label "File"
-                     :submenu [{:type "separator"}
+                     :submenu [{:label "Open project"
+                                :click #(. (. @main-window -webContents) send "open-project")
+                                :accelerator "CmdOrCtrl + O"}
+                               {:type "separator"}
+                               {:label "Save project as..."
+                                :click #(. (. @main-window -webContents) send "save-project-as")
+                                :accelerator "CmdOrCtrl + S"}
+                               {:type "separator"}
                                {:role "quit"}]}
                     {:label "Edit"
                      :submenu [{:role "undo"}
@@ -19,7 +26,8 @@
                                {:role "selectAll"}
                                ]}
                     {:label "View"
-                     :submenu [{:role "reload"}
+                     :submenu [{:type "separator"}
+                               {:role "reload"}
                                {:role "forcereload"}
                                {:type "separator"}
                                {:role "toggledevtools"}
@@ -41,7 +49,7 @@
                ["file-exist?" (fn [ch [p]] (go (>! ch (try (fs/statSync p) true (catch js/Object e false)))))]
                ["create-directory" (fn [ch [p]] (go (>! ch (fs/mkdirSync p))))]
                ["read-file" (fn [ch [p]] (go (>! ch (fs/readFileSync p))))]
-               ["write-file" (fn [ch [p content]] (go (>! ch (fs/writeFileSync p content))))]
+               ["write-file" (fn [ch [p content]] (go (>! ch (do (fs/writeFileSync p content) "ok"))))]
                ["open-file" (fn [ch [p flag]] (go (>! ch (fs/openSync p flag))))]
                ["show-open-dialog"
                 (fn [ch [options]]

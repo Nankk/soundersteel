@@ -1,5 +1,9 @@
 (ns common.const)
 
+(def project-name "Soundersteel")
+
+(def project-extension "ssp")
+
 (def electron-ipc-channels {:bidirectional ["join"
                                             "dirname"
                                             "relative"
@@ -12,4 +16,5 @@
                                             "show-open-dialog"
                                             "show-save-dialog"]
                             :to-main       []
-                            :from-main     []})
+                            :from-main     ["open-project"
+                                            "save-project-as"]})

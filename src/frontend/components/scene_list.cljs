@@ -26,8 +26,9 @@
             [:div.card-body {:on-click (fn []
                                          (when (not= (s :id) cur-id)
                                            (doseq [t @(rf/subscribe [::subs/tracks])]
-                                             (.pause (t :wavesurfer))
-                                             (rf/dispatch-sync [::events/update-playing? t]))
+                                             (when (t :wavesurfer)
+                                               (.pause (t :wavesurfer))
+                                               (rf/dispatch-sync [::events/update-playing? t])))
                                            (rf/dispatch-sync [::events/set-cur-scene-id (s :id)])))}
              [:div.d-flex.flex-row.justify-content-between
               [:div
