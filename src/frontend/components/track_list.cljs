@@ -18,15 +18,25 @@
 (def ws-region (.-default ws-region-raw))
 
 (defn- display [t]
-  [:div.display
-   [:div.d-flex.flex-row.justify-content-between
-    [:div.overflow-hidden.text-nowrap
-     [:h5 (t :name)]]
-    [:i.fa.fa-trash {:on-click (fn []
-                                 (let [track @(rf/subscribe [::subs/track<-id (t :id)])
-                                       ws    (track :wavesurfer)]
-                                   (.destroy ws)
-                                   (rf/dispatch-sync [::events/remove-track track])))}]]])
+  (reagent/create-class
+   {:component-did-mount
+    (fn []
+      (set! (.-value (util/js<-id (str (t :id) "-name-input"))) (t :name)))
+    :reagent-render
+    (fn []
+      [:div.display
+       [:div.d-flex.flex-row.justify-content-between
+        [:div.overflow-hidden.text-nowrap
+         [:input.see-through
+          {:id (str (t :id) "-name-input")
+           :type "text"
+           :on-blur #(let [name (.-value (util/js<-id (str (t :id) "-name-input")))]
+                       (rf/dispatch-sync [::events/set-track-name t name]))}]]
+        [:i.fa.fa-trash {:on-click (fn []
+                                     (let [track @(rf/subscribe [::subs/track<-id (t :id)])
+                                           ws    (track :wavesurfer)]
+                                       (.destroy ws)
+                                       (rf/dispatch-sync [::events/remove-track track])))}]]])}))
 
 (defn- volume-slider [t]
   (reagent/create-class

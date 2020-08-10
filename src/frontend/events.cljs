@@ -41,6 +41,9 @@
                          (let [trmidcs (keep-indexed #(when (= (%2 :id) (t :id)) %1) (db :tracks))
                                ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
                            (assoc db :tracks ntracks)))
+   ::set-track-name    (fn [db [_ t name]]
+                         (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
+                           (assoc-in db [:tracks tidx :name] name)))
    ::update-track      (fn [db [_ t]]
                          (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
                            (assoc-in db [:tracks tidx] t)))
