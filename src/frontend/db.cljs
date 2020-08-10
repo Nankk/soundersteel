@@ -42,4 +42,12 @@
      :cur-track-id  nil}))
 
 (def default-db
-  {:name "re-frame"})
+  (let [sid (str (random-uuid))]
+    {:master-volume 1.0
+     :files         []
+     :scenes        [{:id   sid
+                      :name "Scene 1"}]
+     :tracks        []
+     :cur-file-id   nil
+     :cur-scene-id  sid
+     :cur-track-id  nil}))
