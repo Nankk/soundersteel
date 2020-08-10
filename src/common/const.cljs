@@ -18,4 +18,11 @@
                                             "show-save-dialog"]
                             :to-main       []
                             :from-main     ["open-project"
-                                            "save-project-as"]})
+                                            "save-project-as"
+
+                                            ;; For global shortcuts
+                                            "move-to-next-scene"
+                                            "move-to-prev-scene"
+                                            "toggle-playing-state"
+                                            "toggle-loop?"
+                                            "increase-master-volume"]})

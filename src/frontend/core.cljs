@@ -1,15 +1,16 @@
 (ns frontend.core
-  (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as rf]
-   [frontend.subs :as subs]
-   [frontend.events :as events]
-   [frontend.views :as views]
-   [frontend.config :as config]
-   [frontend.style.core :as style.core]
-   [cljs.core.async :refer [>! go]]
-   [common.const :as const]
-   [frontend.io :as io]))
+  (:require [cljs.core.async :refer [>! go]]
+            [common.const :as const]
+            [frontend.config :as config]
+            [frontend.events :as events]
+            [frontend.shortcuts :as shortcuts]
+            [frontend.io :as io]
+            [frontend.style.core :as style.core]
+            [frontend.subs :as subs]
+            [frontend.views :as views]
+            [re-frame.core :as rf]
+            [reagent.dom :as rdom]
+            [frontend.util :as util]))
 
 (defn- compile-garden []
   (println "Compiling garden...")
@@ -27,7 +28,7 @@
   (rdom/render [views/main-panel]
                (.getElementById js/document "app")))
 
-(defn- register-handlers-from-main []
+(defn- register-individual []
   ;; Never return nil from cbfs cause it'll be passed to core.async's ch
   (. (. js/window -api) fromMain "open-project"
      (fn [_ _]
@@ -43,6 +44,25 @@
                                      :filters [{:name       (str const/project-name " project")
                                                 :extensions [const/project-extension]}]})
          "Project saved."))))
+
+(defn- register-global-shortcuts []
+  (. (. js/window -api) fromMain "move-to-next-scene"
+     (fn [_ _] (shortcuts/move-to-next-scene) "done"))
+  (. (. js/window -api) fromMain "move-to-prev-scene"
+     (fn [_ _] (shortcuts/move-to-prev-scene) "done"))
+  (. (. js/window -api) fromMain "toggle-playing-state"
+     (fn [_ _ args]
+       (let [tidx (js/parseInt ((js->clj args) "tidx"))]
+         (shortcuts/toggle-playing-state tidx)
+         (println args)) "done"))
+  (. (. js/window -api) fromMain "toggle-loop?"
+     (fn [_ _ args]
+       (let [tidx (js/parseInt ((js->clj args) "tidx"))]
+         (shortcuts/toggle-loop? tidx)) "done")))
+
+(defn- register-handlers-from-main []
+  (register-individual)
+  (register-global-shortcuts))
 
 (defn- register-handler-bidirectional [ipc-channel]
   (. (. js/window -api) fromMain ipc-channel

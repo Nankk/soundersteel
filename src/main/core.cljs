@@ -2,7 +2,7 @@
   (:require
    [async-interop.interop :refer-macros [<p!]]
    [cljs.core.async :as async :refer [>! <! go chan]]
-   ["electron" :as electron :refer [app ipcMain Menu BrowserWindow dialog]]
+   ["electron" :as electron :refer [app ipcMain Menu BrowserWindow dialog globalShortcut]]
    ["fs" :as fs]
    ["path" :as path]))
 
@@ -42,6 +42,29 @@
                      :submenu [{:role "zoom"}
                                {:role "minimize"}
                                {:role "close"}]}])
+(def global-shortcuts
+  [["alt+super+q" "move-to-prev-scene"]
+   ["alt+super+w" "move-to-next-scene"]
+   ["alt+super+1" "toggle-playing-state" {:tidx 0}]
+   ["alt+super+2" "toggle-playing-state" {:tidx 1}]
+   ["alt+super+3" "toggle-playing-state" {:tidx 2}]
+   ["alt+super+4" "toggle-playing-state" {:tidx 3}]
+   ["alt+super+5" "toggle-playing-state" {:tidx 4}]
+   ["alt+super+6" "toggle-playing-state" {:tidx 5}]
+   ["alt+super+7" "toggle-playing-state" {:tidx 6}]
+   ["alt+super+8" "toggle-playing-state" {:tidx 7}]
+   ["alt+super+9" "toggle-playing-state" {:tidx 8}]
+   ["alt+super+0" "toggle-playing-state" {:tidx 9}]
+   ["alt+shift+super+1" "toggle-loop?" {:tidx 0}]
+   ["alt+shift+super+2" "toggle-loop?" {:tidx 1}]
+   ["alt+shift+super+3" "toggle-loop?" {:tidx 2}]
+   ["alt+shift+super+4" "toggle-loop?" {:tidx 3}]
+   ["alt+shift+super+5" "toggle-loop?" {:tidx 4}]
+   ["alt+shift+super+6" "toggle-loop?" {:tidx 5}]
+   ["alt+shift+super+7" "toggle-loop?" {:tidx 6}]
+   ["alt+shift+super+8" "toggle-loop?" {:tidx 7}]
+   ["alt+shift+super+9" "toggle-loop?" {:tidx 8}]
+   ["alt+shift+super+0" "toggle-loop?" {:tidx 9}]])
 (def handlers [["join" (fn [ch [p1 p2]] (go (>! ch (path/join p1 p2))))]
                ["dirname" (fn [ch [p]] (go (>! ch (path/dirname p))))]
                ["basename" (fn [ch [p]] (go (>! ch (path/basename p))))]
@@ -86,7 +109,7 @@
 
 (defn- set-ipc-handler [ipc-channel cbf]
   (.on ipcMain ipc-channel
-       (fn [event args-js]
+       (fn [_ args-js]
          (go
            (let [ch   (chan) ; for those that includes async operations
                  args (js->clj args-js)
@@ -101,6 +124,13 @@
   (doseq [[ipc-channel cbf] handlers]
     (set-ipc-handler ipc-channel cbf)))
 
+(defn- register-global-shortcuts []
+  (doseq [gs global-shortcuts]
+    (.register globalShortcut
+               (gs 0)
+               (fn []
+                 (.send (.-webContents @main-window ) (gs 1) (clj->js (get gs 2)))))))
+
 (defn- init-browser []
   (reset! main-window (BrowserWindow.
                        (clj->js {:width 1200
@@ -113,8 +143,11 @@
   ;; Application menu
   (let [menu (. Menu buildFromTemplate (clj->js menu-template))]
     (.setApplicationMenu Menu menu))
-
+  ;; Global shortcuts
+  (register-global-shortcuts)
+  ;; Electron ipc
   (set-ipc-handlers)
+  ;; GUI
   (.loadURL @main-window (str "file://" js/__dirname "/public/index.html"))
   (.on @main-window "closed" #(reset! main-window nil)))
 
@@ -123,4 +156,5 @@
        (fn []
          (when-not (= js/process.platform "darwin")
            (.quit app))))
-  (.on app "ready" init-browser))
+  (.on app "ready" init-browser)
+  (.on app "will-quit" (fn [] (.unregisterAll globalShortcut))))
