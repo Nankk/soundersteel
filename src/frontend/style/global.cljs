@@ -29,7 +29,7 @@
    [:html {:background-color (str (colors :black) "!important")}]
    [:body {:font-size "80%!important"}
     [:* {:user-select "none"}]]
-   [:i.fa.fa-trash {:color (colors :gray-lighter)}]
+   [:i {:color (colors :gray-lighter)}]
    [:.container {:height  "100%"
                  :margin  "0px!important"
                  :padding "10px!important"}]
@@ -48,12 +48,11 @@
                                  :background-clip "content-box"
                                  :border-radius   "10px"
                                  :box-shadow      "none"}]
-   [:.see-through {:color            (colors :gray-light)
+   [:.see-through {:color            (colors :gray-lightest)
                    :background-color "transparent"
                    :border-radius    0
                    :border           "none"
-                   ;; :border-bottom    (str "1px solid " "#444444")
-                   }]
+                   :border-bottom    (str "1px solid " "#444444")}]
    [:.num {:text-align "right"
            :user-select "auto"}]
    [:.list-item {:background-color (colors :gray-light)
