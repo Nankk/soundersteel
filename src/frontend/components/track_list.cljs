@@ -21,8 +21,7 @@
   [:div.display
    [:div.d-flex.flex-row.justify-content-between
     [:div.overflow-hidden.text-nowrap
-     (let [f @(rf/subscribe [::subs/file<-id (t :file-id)])]
-       [:h5 (nth (re-find #"/([^/]+)$" (f :path)) 1)])]
+     [:h5 (t :name)]]
     [:i.fa.fa-trash {:on-click (fn []
                                  (let [track @(rf/subscribe [::subs/track<-id (t :id)])
                                        ws    (track :wavesurfer)]
