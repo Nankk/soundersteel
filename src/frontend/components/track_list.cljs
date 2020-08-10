@@ -224,21 +224,21 @@
                     (when cur-t (rf/dispatch-sync [::events/pull-up-track cur-t]))))}]]])
 
 (defn- create-track [f]
-  (let [tid     (str (random-uuid))
-        fid     (f :id)
-        cur-sid @(rf/subscribe [::subs/cur-scene-id])
-        nt      {:id          tid
-                 :file-id     fid
-                 :scene-id    cur-sid
-                 :name        (nth (re-find #"/([^/]+)$" (f :path)) 1)
-                 :wavesurfer  nil
-                 :dom-element nil
-                 :playing?    false
-                 :volume      1.0
-                 :loop?       true
-                 :a           nil
-                 :b           nil}]
-    (rf/dispatch-sync [::events/add-track nt])))
+  (go (let [tid     (str (random-uuid))
+            fid     (f :id)
+            cur-sid @(rf/subscribe [::subs/cur-scene-id])
+            nt      {:id          tid
+                     :file-id     fid
+                     :scene-id    cur-sid
+                     :name        (<! (ipc :basename (f :path)))
+                     :wavesurfer  nil
+                     :dom-element nil
+                     :playing?    false
+                     :volume      1.0
+                     :loop?       true
+                     :a           nil
+                     :b           nil}]
+        (rf/dispatch-sync [::events/add-track nt]))))
 
 (defn- track-panel [t]
   (if (nil? (t :wavesurfer))

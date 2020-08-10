@@ -6,6 +6,7 @@
 
 (def electron-ipc-channels {:bidirectional ["join"
                                             "dirname"
+                                            "basename"
                                             "relative"
                                             "absolute?"
                                             "file-exist?"

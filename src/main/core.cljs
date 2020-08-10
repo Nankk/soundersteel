@@ -44,6 +44,7 @@
                                {:role "close"}]}])
 (def handlers [["join" (fn [ch [p1 p2]] (go (>! ch (path/join p1 p2))))]
                ["dirname" (fn [ch [p]] (go (>! ch (path/dirname p))))]
+               ["basename" (fn [ch [p]] (go (>! ch (path/basename p))))]
                ["relative" (fn [ch [p1 p2]] (go (>! ch (path/relative p1 p2))))]
                ["absolute?" (fn [ch [p]] (go (>! ch (path/isAbsolute p))))]
                ["file-exist?" (fn [ch [p]] (go (>! ch (try (fs/statSync p) true (catch js/Object e false)))))]
