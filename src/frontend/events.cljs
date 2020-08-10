@@ -28,6 +28,9 @@
                                (assoc ,, :tracks ntracks))))
    ::add-scene         (fn [db [_ s]]
                          (update db :scenes #(conj % s)))
+   ::set-scene-name    (fn [db [_ s name]]
+                         (let [sidx (util/first-idx #(= (% :id) (s :id)) (db :scenes))]
+                           (assoc-in db [:scenes sidx :name] name)))
    ::remove-scene      (fn [db [_ s]]
                          (let [srmidcs (keep-indexed #(when (= (%2 :id) (s :id)) %1) (db :scenes))
                                nscenes (apply util/drop-by-idx (db :scenes) srmidcs)
