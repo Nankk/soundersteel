@@ -6,39 +6,60 @@
             [frontend.const :as const]))
 
 (def handlers
-  {::set-db            (fn [_ [_ new-db]] new-db)
-   ::initialize-db     (fn [_ _] (if config/debug? db/debug-db db/default-db))
-   ::add-ipc-channel   (fn [db [_ k v]] (update-in db [:ipc-channels] assoc k v))
-   ::set-cur-file-id   [:cur-file-id]
-   ::set-cur-scene-id  [:cur-scene-id]
-   ::set-cur-track-id  [:cur-track-id]
-   ::add-file          (fn [db [_ f]]
-                         (let [ext (get (re-find #"\.([^\./\\]+)$" (f :path)) 1)]
-                           (if (and (not (some #{(f :path)} (map :path (db :files))))
-                                    (some #{ext} const/acceptable-extensions))
-                             (update db :files conj f)
+  {::set-db           (fn [_ [_ new-db]] new-db)
+   ::initialize-db    (fn [_ _] (if config/debug? db/debug-db db/default-db))
+   ::add-ipc-channel  (fn [db [_ k v]] (update-in db [:ipc-channels] assoc k v))
+   ::set-cur-file-id  [:cur-file-id]
+   ::set-cur-scene-id [:cur-scene-id]
+   ::set-cur-track-id [:cur-track-id]
+   ::add-file         (fn [db [_ f]]
+                        (let [ext (get (re-find #"\.([^\./\\]+)$" (f :path)) 1)]
+                          (if (and (not (some #{(f :path)} (map :path (db :files))))
+                                   (some #{ext} const/acceptable-extensions))
+                            (update db :files conj f)
+                            db)))
+   ::remove-file      (fn [db [_ f]]
+                        (let [frmidcs (keep-indexed #(when (= (%2 :id) (f :id)) %1) (db :files))
+                              nfiles  (apply util/drop-by-idx (db :files) frmidcs)
+                              trmidcs (keep-indexed #(when (= (%2 :file-id) (f :id)) %1) (db :tracks))
+                              ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
+                          (-> db
+                              (assoc ,, :files nfiles)
+                              (assoc ,, :tracks ntracks))))
+   ::add-scene        (fn [db [_ s]]
+                        (update db :scenes #(conj % s)))
+   ::set-scene-name   (fn [db [_ s name]]
+                        (let [sidx (util/first-idx #(= (% :id) (s :id)) (db :scenes))]
+                          (assoc-in db [:scenes sidx :name] name)))
+   ::remove-scene     (fn [db [_ s]]
+                        (let [srmidcs (keep-indexed #(when (= (%2 :id) (s :id)) %1) (db :scenes))
+                              nscenes (apply util/drop-by-idx (db :scenes) srmidcs)
+                              trmidcs (keep-indexed #(when (= (%2 :scene-id) (s :id)) %1) (db :tracks))
+                              ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
+                          (-> db
+                              (assoc ,, :scenes nscenes)
+                              (assoc ,, :tracks ntracks))))
+
+   ::push-down-scene   (fn [db [_ s]]
+                         (let [ss  (db :scenes)
+                               idx (util/first-idx #(= (s :id) (% :id)) ss)]
+                           (if (not (= idx (dec (count ss))))
+                             (let [nscenes (vec (concat (subvec ss 0 idx)
+                                                        (list (ss (inc idx)))
+                                                        (list (ss idx))
+                                                        (when (> (count ss) 2) (subvec ss (+ idx 2)))))]
+                               (assoc db :scenes nscenes))
                              db)))
-   ::remove-file       (fn [db [_ f]]
-                         (let [frmidcs (keep-indexed #(when (= (%2 :id) (f :id)) %1) (db :files))
-                               nfiles  (apply util/drop-by-idx (db :files) frmidcs)
-                               trmidcs (keep-indexed #(when (= (%2 :file-id) (f :id)) %1) (db :tracks))
-                               ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
-                           (-> db
-                               (assoc ,, :files nfiles)
-                               (assoc ,, :tracks ntracks))))
-   ::add-scene         (fn [db [_ s]]
-                         (update db :scenes #(conj % s)))
-   ::set-scene-name    (fn [db [_ s name]]
-                         (let [sidx (util/first-idx #(= (% :id) (s :id)) (db :scenes))]
-                           (assoc-in db [:scenes sidx :name] name)))
-   ::remove-scene      (fn [db [_ s]]
-                         (let [srmidcs (keep-indexed #(when (= (%2 :id) (s :id)) %1) (db :scenes))
-                               nscenes (apply util/drop-by-idx (db :scenes) srmidcs)
-                               trmidcs (keep-indexed #(when (= (%2 :scene-id) (s :id)) %1) (db :tracks))
-                               ntracks (apply util/drop-by-idx (db :tracks) trmidcs)]
-                           (-> db
-                               (assoc ,, :scenes nscenes)
-                               (assoc ,, :tracks ntracks))))
+   ::pull-up-scene     (fn [db [_ s]]
+                         (let [ss  (db :scenes)
+                               idx (util/first-idx #(= (s :id) (% :id)) ss)]
+                           (if (not (= idx 0))
+                             (let [nscenes (vec (concat (subvec ss 0 (dec idx))
+                                                        (list (ss idx))
+                                                        (list (ss (dec idx)))
+                                                        (when (> (count ss) 2) (subvec ss (inc idx)))))]
+                               (assoc db :scenes nscenes))
+                             db)))
    ::add-track         (fn [db [_ t]] (update db :tracks conj t))
    ::remove-track      (fn [db [_ t]]
                          (let [trmidcs (keep-indexed #(when (= (%2 :id) (t :id)) %1) (db :tracks))

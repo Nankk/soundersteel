@@ -45,7 +45,17 @@
      [:div.grid
       [:div.title.d-flex.flex-row.justify-content-between.align-items-center
        [:h3 "Scenes"]
-       [:i.fa.fa-plus {:on-click #(rf/dispatch-sync [::events/add-scene (const/default-scene)])}]]
+       [:div.d-flex.flex-row
+        [:i.fa.fa-plus.mr-2
+         {:on-click #(rf/dispatch-sync [::events/add-scene (const/default-scene)])}]
+        [:i.fas.fa-chevron-circle-down.mr-2
+         {:on-click (fn []
+                      (let [cur-s @(rf/subscribe [::subs/cur-scene])]
+                        (when cur-s (rf/dispatch-sync [::events/push-down-scene cur-s]))))}]
+        [:i.fas.fa-chevron-circle-up
+         {:on-click (fn []
+                      (let [cur-s @(rf/subscribe [::subs/cur-scene])]
+                        (when cur-s (rf/dispatch-sync [::events/pull-up-scene cur-s]))))}]]]
       [:div.list.scroll
        (let [ss     @(rf/subscribe [::subs/scenes])]
          (for [s ss]
