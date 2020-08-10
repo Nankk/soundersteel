@@ -33,4 +33,9 @@
              [:div.d-flex.flex-row.justify-content-between
               [:div
                (str (s :name))]
-              [:i.fa.fa-trash {:on-click #(rf/dispatch-sync [::events/remove-scene s])}]]]]))]]]]])
+              [:i.fa.fa-trash
+               {:on-click
+                (fn []
+                  (let [ts (filter #(= (% :scene-id) (s :id)) @(rf/subscribe [::subs/tracks]))]
+                    (doseq [t ts] (.destroy (t :wavesurfer)))
+                    (rf/dispatch-sync [::events/remove-scene s])))}]]]]))]]]]])
