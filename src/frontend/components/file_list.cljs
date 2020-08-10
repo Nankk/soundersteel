@@ -28,7 +28,8 @@
           [:div.d-flex.flex-row.justify-content-between
            [:div.overflow-hidden.text-nowrap (get (re-find #"(/|\\)([^/\\]+)$" (f :path)) 2)]
            [:i.fa.fa-trash
-            {:on-click
+            {:type "button"
+             :on-click
              (fn []
                (let [ts (filter #(= (% :file-id) (f :id)) @(rf/subscribe [::subs/tracks]))]
                  (doseq [t ts] (.destroy (t :wavesurfer)))

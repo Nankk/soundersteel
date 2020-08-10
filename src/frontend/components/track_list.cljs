@@ -32,7 +32,8 @@
            :type "text"
            :on-blur #(let [name (.-value (util/js<-id (str (t :id) "-name-input")))]
                        (rf/dispatch-sync [::events/set-track-name t name]))}]]
-        [:i.fa.fa-trash {:on-click (fn []
+        [:i.fa.fa-trash {:type "button"
+                         :on-click (fn []
                                      (let [track @(rf/subscribe [::subs/track<-id (t :id)])
                                            ws    (track :wavesurfer)]
                                        (.destroy ws)
@@ -64,13 +65,15 @@
     [:div.contoller
      [:div.d-flex.flex-row.align-items-center.justify-content-center
       [:i.fas.fa-chevron-circle-left.fa-lg
-       {:on-click (fn []
+       {:type "button"
+        :on-click (fn []
                     (let [ws           (t :wavesurfer)
                           break-points (reverse [(t :a) (t :b) (.getDuration ws)])
                           cur-time     (- (.getCurrentTime ws) const/op-tolerance-sec)
                           ntime        (first (filter #(> cur-time %) break-points))]
                       (.setCurrentTime ws ntime)))}]
-      [:span.fa-stack {:style {:vertical-align "top"}}
+      [:span.fa-stack {:type "button"
+                       :style {:vertical-align "top"}}
        [:i.far.fa-circle.fa-stack-2x]
        (if @(rf/subscribe [::subs/playing? t])
          [:i.fas.fa-pause.fa-stack-1x
@@ -82,7 +85,8 @@
                        (.play ws)
                        (rf/dispatch-sync [::events/update-playing? t]))}])]
       [:i.fas.fa-chevron-circle-right.fa-lg
-       {:on-click (fn []
+       {:type "button"
+        :on-click (fn []
                     (let [ws           (t :wavesurfer)
                           break-points [(t :a) (t :b) (.getDuration ws)]
                           cur-time     (+ (.getCurrentTime ws) 0.01)
@@ -224,11 +228,13 @@
    [master-volume]
    [:div.d-flex.flex-row
     [:i.fas.fa-chevron-circle-up.mr-2
-     {:on-click (fn []
+     {:type "button"
+      :on-click (fn []
                   (let [cur-t @(rf/subscribe [::subs/cur-track])]
                     (when cur-t (rf/dispatch-sync [::events/pull-up-track cur-t]))))}]
     [:i.fas.fa-chevron-circle-down
-     {:on-click (fn []
+     {:type "button"
+      :on-click (fn []
                   (let [cur-t @(rf/subscribe [::subs/cur-track])]
                     (when cur-t (rf/dispatch-sync [::events/push-down-track cur-t]))))}]]])
 

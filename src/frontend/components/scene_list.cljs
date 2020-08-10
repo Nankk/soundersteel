@@ -31,7 +31,8 @@
              :on-blur #(let [name (.-value (util/js<-id (str (s :id) "-name-input")))]
                          (rf/dispatch-sync [::events/set-scene-name s name]))}]
            [:i.fa.fa-trash
-            {:on-click
+            {:type "button"
+             :on-click
              (fn []
                (let [ts (filter #(= (% :scene-id) (s :id)) @(rf/subscribe [::subs/tracks]))]
                  (doseq [t ts] (.destroy (t :wavesurfer)))
@@ -47,13 +48,16 @@
        [:h3 "Scenes"]
        [:div.d-flex.flex-row
         [:i.fa.fa-plus.mr-3
-         {:on-click #(rf/dispatch-sync [::events/add-scene (const/default-scene)])}]
+         {:type "button"
+          :on-click #(rf/dispatch-sync [::events/add-scene (const/default-scene)])}]
         [:i.fas.fa-chevron-circle-up.mr-2
-         {:on-click (fn []
+         {:type "button"
+          :on-click (fn []
                       (let [cur-s @(rf/subscribe [::subs/cur-scene])]
                         (when cur-s (rf/dispatch-sync [::events/pull-up-scene cur-s]))))}]
         [:i.fas.fa-chevron-circle-down
-         {:on-click (fn []
+         {:type "button"
+          :on-click (fn []
                       (let [cur-s @(rf/subscribe [::subs/cur-scene])]
                         (when cur-s (rf/dispatch-sync [::events/push-down-scene cur-s]))))}]]]
       [:div.list.scroll
