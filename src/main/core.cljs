@@ -42,29 +42,15 @@
                      :submenu [{:role "zoom"}
                                {:role "minimize"}
                                {:role "close"}]}])
+(def num->key {0 "Q" 1 "W" 2 "E" 3 "R" 4 "T" 5 "A" 6 "S" 7 "D" 8 "F" 9 "G"})
 (def global-shortcuts
-  [["alt+super+q" "move-to-prev-scene"]
-   ["alt+super+w" "move-to-next-scene"]
-   ["alt+super+1" "toggle-playing-state" {:tidx 0}]
-   ["alt+super+2" "toggle-playing-state" {:tidx 1}]
-   ["alt+super+3" "toggle-playing-state" {:tidx 2}]
-   ["alt+super+4" "toggle-playing-state" {:tidx 3}]
-   ["alt+super+5" "toggle-playing-state" {:tidx 4}]
-   ["alt+super+6" "toggle-playing-state" {:tidx 5}]
-   ["alt+super+7" "toggle-playing-state" {:tidx 6}]
-   ["alt+super+8" "toggle-playing-state" {:tidx 7}]
-   ["alt+super+9" "toggle-playing-state" {:tidx 8}]
-   ["alt+super+0" "toggle-playing-state" {:tidx 9}]
-   ["alt+shift+super+1" "toggle-loop?" {:tidx 0}]
-   ["alt+shift+super+2" "toggle-loop?" {:tidx 1}]
-   ["alt+shift+super+3" "toggle-loop?" {:tidx 2}]
-   ["alt+shift+super+4" "toggle-loop?" {:tidx 3}]
-   ["alt+shift+super+5" "toggle-loop?" {:tidx 4}]
-   ["alt+shift+super+6" "toggle-loop?" {:tidx 5}]
-   ["alt+shift+super+7" "toggle-loop?" {:tidx 6}]
-   ["alt+shift+super+8" "toggle-loop?" {:tidx 7}]
-   ["alt+shift+super+9" "toggle-loop?" {:tidx 8}]
-   ["alt+shift+super+0" "toggle-loop?" {:tidx 9}]])
+  (concat [["ctrl+shift+super+z" "move-to-prev-scene"]
+           ["ctrl+shift+super+x" "move-to-next-scene"]]
+          (vec (for [i (range 10)]
+                 [(str "ctrl+shift+super+" (num->key i))
+                  "toggle-playing-state"
+                  {:tidx i}]))))
+
 (def handlers [["join" (fn [ch [p1 p2]] (go (>! ch (path/join p1 p2))))]
                ["dirname" (fn [ch [p]] (go (>! ch (path/dirname p))))]
                ["basename" (fn [ch [p]] (go (>! ch (path/basename p))))]
