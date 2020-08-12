@@ -104,7 +104,6 @@
                                     :loop   false
                                     :drag   true
                                     :color  (style/colors a-b)}))]
-    (rf/dispatch-sync [::events/set-a-b t a-b time])
     (.on r "update-end" (fn []
                           (let [updated-time (.-start r)]
                             (set! (.-value (util/js<-id (str (t :id) "-" (name a-b))))
@@ -142,15 +141,18 @@
                                   :border-color     (style/colors a-b)})
          :on-click (if (t a-b)
                      #(remove-region t a-b)
-                     #(add-region t a-b (.getCurrentTime (t :wavesurfer))))}
+                     (fn []
+                       (let [time (.getCurrentTime (t :wavesurfer))]
+                         (rf/dispatch-sync [::events/set-a-b t a-b time])
+                         (add-region t a-b time))))}
         (str/upper-case (name a-b))]
        [:input.input-ab.see-through.num
         {:id (str (t :id) "-" (name a-b))
          :on-blur (fn []
                     (let [time (.-value (util/js<-id (str (t :id) "-" (name a-b))))]
                       (remove-region t a-b)
-                      (add-region t a-b time)
-                      (rf/dispatch-sync [::events/set-a-b t a-b time])))}]])}))
+                      (rf/dispatch-sync [::events/set-a-b t a-b time])
+                      (add-region t a-b time)))}]])}))
 
 (defn- looper [t]
   [:div.looper
@@ -187,8 +189,12 @@
         fid (nt :file-id)
         f   @(rf/subscribe [::subs/file<-id fid])]
     (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
-    (rf/dispatch-sync [::events/update-track nt])
-    (.load ws (f :path))))
+    (.load ws (f :path))
+    ;; ここなんで動かないか分からない中
+    ;; (for [a-b [:a :b]]
+    ;;   (when (nt a-b)
+    ;;     (add-region nt a-b (nt a-b))))
+    (rf/dispatch-sync [::events/update-track nt])))
 
 (defn- wavesurfer-container [t]
   (reagent/create-class
