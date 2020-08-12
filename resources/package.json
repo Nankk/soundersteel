@@ -10,7 +10,6 @@
         "bootstrap": "^4.5.2",
         "chart.js": "^2.9.3",
         "create-react-class": "15.6.2",
-        "electron": "^9.2.0",
         "encoding-japanese": "^1.0.30",
         "highlight.js": "^9.15.10",
         "jquery": "^3.4.1",
