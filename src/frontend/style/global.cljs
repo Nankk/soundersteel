@@ -43,7 +43,7 @@
    [:.rounded {:border-radius "5px"}]
    [:&::-webkit-scrollbar {:width "10px"}
     [:* {:background "transparent"}]]
-   [:&::-webkit-scrollbar-thumb {:background      (colors :gray)
+   [:&::-webkit-scrollbar-thumb {:background      (colors :gray-light)
                                  :border          "2px solid transparent"
                                  :background-clip "content-box"
                                  :border-radius   "10px"
