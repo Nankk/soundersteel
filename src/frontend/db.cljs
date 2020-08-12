@@ -37,8 +37,8 @@
                       :loop?       true
                       :a           nil
                       :b           nil}]
-     :cur-file-id   nil
-     :cur-scene-id  nil
+     :cur-file-id   f-id
+     :cur-scene-id  s-id
      :cur-track-id  nil}))
 
 (def default-db
