@@ -33,6 +33,12 @@
    [:.container {:height  "100%"
                  :margin  "0px!important"
                  :padding "10px!important"}]
+
+   ;; For some reason these settings enables scrollbar *of the nested content inside the Pane*
+   [:.Pane1 {:overflow "auto"}]
+   [:.Pane2 {:overflow "auto"}]
+   ;; ?????
+
    [:.scroll {:overflow "auto"}]
    [:.card-header {:padding "8px 8px"}]
    [:.card {:background-color (colors :gray)}]
