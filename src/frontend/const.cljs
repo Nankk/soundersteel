@@ -2,6 +2,6 @@
 
 (def acceptable-extensions ["wav" "mp3" "m4a"])
 
-(defn default-scene [] {:id (random-uuid) :name "New scene" :tracks []})
+(defn default-scene [] {:id (str (random-uuid)) :name "New scene" :tracks []})
 
 (def op-tolerance-sec 0.5)
