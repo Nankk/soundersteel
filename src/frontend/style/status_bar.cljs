@@ -4,9 +4,10 @@
 
 (defn css []
   (g/css
-   [:#status-bar {:width "100%"
-                  :height "100%"
+   [:#status-bar {:width            "100%"
+                  :height           "100%"
                   :background-color (global/colors :gray-darkest)
-                  :padding "0px 18px"
-                  :text-align "right"}
-    [:* {:color (global/colors :gray-lighter)}]]))
+                  :padding          "0px 18px"
+                  :text-align       "right"}
+    [:* {:color       (global/colors :gray-lighter)
+         :white-space "pre"}]]))

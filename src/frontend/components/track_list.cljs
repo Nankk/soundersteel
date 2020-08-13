@@ -189,6 +189,13 @@
         fid (nt :file-id)
         f   @(rf/subscribe [::subs/file<-id fid])]
     (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
+    (.on ws "seek" (fn [fraction]
+                     (let [cur-scene @(rf/subscribe [::subs/cur-scene])
+                           cur-track @(rf/subscribe [::subs/cur-track])
+                           dur (.getDuration ws)
+                           msg (str "Scene: " (cur-scene :name) "    Track: " (cur-track :name)
+                                    "    Seeking: " (gstring/format "%.2f sec" (* dur fraction)))]
+                       (rf/dispatch-sync [::events/set-status-message msg]))))
     (.load ws (f :path))
     (doseq [a-b [:a :b]]
       (when (nt a-b)
