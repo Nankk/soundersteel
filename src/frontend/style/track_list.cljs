@@ -76,5 +76,5 @@
                  :type  "text"}]
     [:wave
      [:wave {:opacity 0.5}]]
-    [:.wavesurfer-region {:width "1px!important"}]
+    [:.wavesurfer-region {:width "2px!important"}]
     ]))

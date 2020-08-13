@@ -21,8 +21,8 @@
    :black         "#000000"
    :accent1       "#1e364a"
    :accent2       "#3b6f8c"
-   :a             "#005c28"
-   :b             "#7e2125"})
+   :a             "#037e6c"
+   :b             "#3b58af"})
 
 (defn css []
   (g/css
