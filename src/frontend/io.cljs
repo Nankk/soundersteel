@@ -33,7 +33,6 @@
           file (<! (open-file path))]
       (println "open-project")
       (when-let [edn (file :content)]
-        (println edn)
         (rf/dispatch-sync [::events/set-db (reader/read-string edn)])))))
 
 (defn write-file [content options]
