@@ -190,10 +190,10 @@
         f   @(rf/subscribe [::subs/file<-id fid])]
     (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
     (.load ws (f :path))
-    ;; ここなんで動かないか分からない中
-    ;; (for [a-b [:a :b]]
-    ;;   (when (nt a-b)
-    ;;     (add-region nt a-b (nt a-b))))
+    (doseq [a-b [:a :b]]
+      (when (nt a-b)
+        (println "Trying to set region to " (nt :name))
+        (add-region nt a-b (nt a-b))))
     (rf/dispatch-sync [::events/update-track nt])))
 
 (defn- wavesurfer-container [t]
