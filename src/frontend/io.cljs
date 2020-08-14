@@ -6,6 +6,7 @@
             [common.const :as const]
             [frontend.electron-ipc :refer [ipc]]
             [frontend.events :as events]
+            [frontend.subs :as subs]
             goog.string.format
             [re-frame.core :as rf]))
 
@@ -32,6 +33,12 @@
                                                      {:name "All files" :extensions ["*"]}]}))
           file (<! (open-file path))]
       (println "open-project")
+      ;; Destroy all existing wavesurfer instances
+      (doseq [t @(rf/subscribe [::subs/tracks])]
+        (when-let [ws (t :wavesurfer)]
+          (println "Destroying " (t :name))
+          (.destroy ws)))
+      ;; Replace db
       (when-let [edn (file :content)]
         (rf/dispatch-sync [::events/set-db (reader/read-string edn)])))))
 
