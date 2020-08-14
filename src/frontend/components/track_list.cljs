@@ -114,7 +114,7 @@
                     ;; t itself should not be referred in this closure; t is fixed map
                     (let [track     @(rf/subscribe [::subs/track<-id (t :id)])
                           loop-mode (track :loop-mode)]
-                      (when loop-mode
+                      (when (= loop-mode :a-b-loop)
                         (.setCurrentTime ws (or (track :a) 0)))
                       (when (= loop-mode :single-shot)
                         (.pause ws)
@@ -162,7 +162,7 @@
 (defn- looper [t]
   [:div.looper
 
-   ;; Enable loop
+   ;; Toggle loop
    [:div.d-flex.flex-row.align-items-center.w-100
     [:div.loop-toggle.mb-1 {:style    (case (t :loop-mode)
                                         :a-b-loop    {:background-color (style/colors :accent2)
