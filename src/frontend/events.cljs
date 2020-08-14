@@ -5,6 +5,16 @@
             [frontend.util :as util]
             [frontend.const :as const]))
 
+(def loop-mode->idx
+  {:a-b-loop 0
+   :single-shot 1
+   :no-loop 2})
+
+(def idx->loop-mode
+  {0 :a-b-loop
+   1 :single-shot
+   2 :no-loop})
+
 (def handlers
   {::set-db             (fn [_ [_ new-db]] new-db)
    ::initialize-db      (fn [_ _] (if config/debug? db/debug-db db/default-db))
@@ -101,9 +111,11 @@
    ::set-volume         (fn [db [_ t vol]]
                           (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
                             (assoc-in db [:tracks tidx :volume] vol)))
-   ::toggle-loop        (fn [db [_ t]]
+   ::toggle-loop-mode   (fn [db [_ t]]
                           (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
-                            (update-in db [:tracks tidx :loop?] #(not %))))
+                            (update-in db [:tracks tidx :loop-mode]
+                                       #(idx->loop-mode
+                                         (rem (inc (loop-mode->idx %)) (count loop-mode->idx))))))
    ::set-a-b            (fn [db [_ t a-b time]]
                           (let [tidx (util/first-idx #(= (% :id) (t :id)) (db :tracks))]
                             (assoc-in db [:tracks tidx a-b] time)))

@@ -23,7 +23,7 @@
                        :dom-element nil
                        :playing?    false
                        :volume      1.0
-                       :loop?       true
+                       :loop-mode   :no-loop
                        :a           nil
                        :b           nil}
                       {:id          (str (random-uuid))
@@ -34,7 +34,7 @@
                        :dom-element nil
                        :playing?    false
                        :volume      1.0
-                       :loop?       true
+                       :loop-mode   :a-b-loop
                        :a           nil
                        :b           nil}]
      :cur-file-id    f-id

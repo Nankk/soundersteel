@@ -112,8 +112,13 @@
     (when (= a-b :b)
       (.on r "in" (fn []
                     ;; t itself should not be referred in this closure; t is fixed map
-                    (let [track @(rf/subscribe [::subs/track<-id (t :id)])]
-                      (when (get track :loop?) (.setCurrentTime ws (or (get track :a) 0)))))))))
+                    (let [track     @(rf/subscribe [::subs/track<-id (t :id)])
+                          loop-mode (track :loop-mode)]
+                      (when loop-mode
+                        (.setCurrentTime ws (or (track :a) 0)))
+                      (when (= loop-mode :single-shot)
+                        (.pause ws)
+                        (rf/dispatch-sync [::events/update-playing? track]))))))))
 
 (defn- remove-region [t a-b]
   (println "remove-region " t " " a-b)
@@ -121,7 +126,7 @@
         rs     (js->clj (.-list (.-regions ws)))
         _      (util/log (.-list (.-regions ws)))
         _      (println rs)
-        target (get rs (name a-b))
+        target (rs (name a-b))
         _      (println target)]
     (rf/dispatch-sync [::events/remove-a-b t a-b])
     (when target
@@ -159,10 +164,17 @@
 
    ;; Enable loop
    [:div.d-flex.flex-row.align-items-center.w-100
-    [:div.loop-toggle.mb-1 {:style    (when (t :loop?) {:background-color (style/colors :accent2)
-                                                        :border-color     (style/colors :accent2)})
-                            :on-click #(rf/dispatch-sync [::events/toggle-loop t])}
-     (if (t :loop?) "Loop: on" "Loop: off")]]
+    [:div.loop-toggle.mb-1 {:style    (case (t :loop-mode)
+                                        :a-b-loop    {:background-color (style/colors :accent2)
+                                                      :border-color     (style/colors :accent2)}
+                                        :single-shot {:background-color "#e02532"
+                                                      :border-color     "#e02532"}
+                                        nil)
+                            :on-click #(rf/dispatch-sync [::events/toggle-loop-mode t])}
+     (case (t :loop-mode)
+       :a-b-loop    "Loop: A-B"
+       :single-shot "Single shot"
+       :no-loop     "Loop: off")]]
 
    ;; A-B loop controller
    [a-b-controller t :a]
@@ -181,6 +193,19 @@
                         :hideScrollbar false
                         :plugins       [(.create ws-region (clj->js {}))]})))
 
+(defn- loop-manually [ws]
+  (.setCurrentTime ws 0)
+  (.play ws))
+
+(defn- stop-manually [t ws]
+  (.setCurrentTime ws 0)
+  (rf/dispatch-sync [::events/update-playing? t]))
+
+(defn- jump-to-a [t ws]
+  (let [a-time (t :a)]
+    (.setCurrentTime ws a-time)
+    (rf/dispatch-sync [::events/update-playing? t])))
+
 (defn- create-wavesurfer [t]
   (println "create-wavesurfer")
   (let [el  (create-wavesurfer-element)
@@ -188,13 +213,19 @@
         nt  (assoc t :wavesurfer ws :dom-element el)
         fid (nt :file-id)
         f   @(rf/subscribe [::subs/file<-id fid])]
-    (.on ws "finish" #(rf/dispatch-sync [::events/update-playing? nt]))
+    (.on ws "finish" (fn []
+                       (let [track     @(rf/subscribe [::subs/track<-id (t :id)])
+                             loop-mode (track :loop-mode)]
+                         (cond
+                           (and (= loop-mode :single-shot) (track :a) (track :b)) (loop-manually ws)
+                           (and (= loop-mode :single-shot) (track :a))            (jump-to-a track ws)
+                           t                                                      (stop-manually track ws)))))
     (.on ws "seek" (fn [fraction]
                      (let [cur-scene @(rf/subscribe [::subs/cur-scene])
                            cur-track @(rf/subscribe [::subs/cur-track])
-                           dur (.getDuration ws)
-                           msg (str "Scene: " (cur-scene :name) "    Track: " (cur-track :name)
-                                    "    Seeking: " (gstring/format "%.2f sec" (* dur fraction)))]
+                           dur       (.getDuration ws)
+                           msg       (str "Scene: " (cur-scene :name) "    Track: " (cur-track :name)
+                                          "    Seeking: " (gstring/format "%.2f sec" (* dur fraction)))]
                        (rf/dispatch-sync [::events/set-status-message msg]))))
     (.load ws (f :path))
     (doseq [a-b [:a :b]]
@@ -263,7 +294,7 @@
                      :dom-element nil
                      :playing?    false
                      :volume      1.0
-                     :loop?       true
+                     :loop-mode   :no-loop
                      :a           nil
                      :b           nil}]
         (rf/dispatch-sync [::events/add-track nt]))))
