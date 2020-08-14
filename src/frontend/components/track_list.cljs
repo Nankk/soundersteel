@@ -225,7 +225,7 @@
                            cur-track @(rf/subscribe [::subs/cur-track])
                            dur       (.getDuration ws)
                            msg       (str "Scene: " (cur-scene :name) "    Track: " (cur-track :name)
-                                          "    Seeking: " (gstring/format "%.2f sec" (* dur fraction)))]
+                                          "    Last seek: " (gstring/format "%.2f sec" (* dur fraction)))]
                        (rf/dispatch-sync [::events/set-status-message msg]))))
     (.load ws (f :path))
     (doseq [a-b [:a :b]]
