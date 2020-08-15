@@ -1,46 +1,38 @@
+
+
 # Soundersteel
 
 `soundersteel` is the tool for controlling multiple audio tracks in a single interface.
-This is useful for e.g. live streaming or hosting the tabletop role-playing game with audio effects.
+This is useful e.g. for live streaming or for hosting the tabletop role-playing game with audio effects.
 
 ![Soundersteel Logo](https://github.com/Nankk/soundersteel/blob/images/soundersteel-logo.png)
 
 
-<a id="org69f521a"></a>
-
 ## Features
 
 -   Load multiple audio tracks
--   Support for WAV, MP3, and M4A
+-   Support WAV, MP3, and M4A
 -   Project saving & loading
 -   Region-based looping
 -   Playback control with global hotkeys
 
 
-<a id="orgb09e347"></a>
+## Download
 
-## Installation
-
-Get the latest version from [Releases](https://github.com/Nankk/soundersteel/releases).
-Windows & Linux versions are available.
+Download the latest version from [Releases](https://github.com/Nankk/soundersteel/releases).
+Windows and Linux versions are available.
 
 
-<a id="org818d1fd"></a>
+## Launch the app
 
-## Usage
-
-1.  Download & extract the zip file
-2.  Move to the directory and
-    -   `./soundersteel` on Linux
+1.  Extract zip
+2.  Move to the extracted directory and
+    -   execute `./soundersteel` from the command line on Linux
     -   double click `soundersteel.exe`
 
 
-<a id="org134cb16"></a>
-
 ## Screenshots
 
-
-<a id="org24a5e5a"></a>
 
 ### Basic Usage
 
@@ -54,14 +46,28 @@ Above shows:
 -   Adjust the volume of each track
 -   Set the loop
     -   Start & end point of the region
-    -   Loop mode: `off`, `A-B`, and `Single shot`
-        -   `Single shot` is useful for short sound effects like gun shot
+    -   Loop mode: `Off`, `A-B`, and `Single shot`
+        -   **`Off`:** Ignores A/B markers and plays till the end of the track only one time
+        -   **`A-B`:** Jumps back to A-marker when the seeking reached to B-marker. When A-marker is not set, the audio is re-played from the beginning
+        -   **`Single shot`:** Jumps back to the A marker and pauses track when the seeking reached to B-marker. This is useful for short sound effects like gun shot
 
 
-<a id="org33969ec"></a>
-
-### Save & Open Project
+### Saving and Loading the Project
 
 ![Usage flow](https://github.com/Nankk/soundersteel/blob/images/save-and-load-project.gif)
 
 You can save & load current state to `.ssp` file.
+
+
+## Global hotkeys
+
+You can control the playback of the tracks using global hotkeys.
+Following keys are available with modifier keys `Ctrl + Shift + Super (Win)`.
+These functions can be reached even when the app lost it's focus or hide behind other windows.
+
+-   **`Q`, `W`, `E`, `R`, `T`:** Toggle play/pause track #1-5 of current scene
+-   **`A`, `S`, `D`, `F`, `G`:** Toggle play/pause track #6-10 of current scene
+-   **`Z`:** Move to previous scene
+-   **`X`:** Move to next scene
+
+![Global hotkeys](https://github.com/Nankk/soundersteel/blob/images/global-hotkeys.png)
