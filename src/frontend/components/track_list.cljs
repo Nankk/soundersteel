@@ -114,7 +114,8 @@
                     ;; t itself should not be referred in this closure; t is fixed map
                     (let [track     @(rf/subscribe [::subs/track<-id (t :id)])
                           loop-mode (track :loop-mode)]
-                      (when (= loop-mode :a-b-loop)
+                      (when (or (= loop-mode :a-b-loop)
+                                (= loop-mode :single-shot))
                         (.setCurrentTime ws (or (track :a) 0)))
                       (when (= loop-mode :single-shot)
                         (.pause ws)
