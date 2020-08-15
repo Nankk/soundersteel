@@ -119,12 +119,13 @@
 
 (defn- init-browser []
   (reset! main-window (BrowserWindow.
-                       (clj->js {:width 1200
-                                 :height 800
-                                 :webPreferences {:nodeIntegration false
-                                                  :contextIsolation true
+                       (clj->js {:width          1200
+                                 :height         800
+                                 :icon           (str js/__dirname "icons/favicon.ico")
+                                 :webPreferences {:nodeIntegration    false
+                                                  :contextIsolation   true
                                                   :enableRemoteModule false
-                                                  :preload (path/join js/__dirname "scripts/preload.js")}})))
+                                                  :preload            (path/join js/__dirname "scripts/preload.js")}})))
 
   ;; Application menu
   (let [menu (. Menu buildFromTemplate (clj->js menu-template))]
