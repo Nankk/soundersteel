@@ -121,7 +121,7 @@
   (reset! main-window (BrowserWindow.
                        (clj->js {:width          1200
                                  :height         800
-                                 :icon           (str js/__dirname "icons/favicon.ico")
+                                 :icon           (path/join js/__dirname "icons/favicon-32x32.png")
                                  :webPreferences {:nodeIntegration    false
                                                   :contextIsolation   true
                                                   :enableRemoteModule false
